@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block title %}GitHub Activity Tracker - User Management{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div>
+                    <i class="fas fa-users-cog me-2"></i>
+                    <span>User Management</span>
+                </div>
+                <a href="{{ url_for('auth.admin_add_user') }}" class="btn btn-sm btn-primary">
+                    <i class="fas fa-user-plus me-1"></i> Add User
+                </a>
+            </div>
+            <div class="card-body">
+                {% if users %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-user-circle me-2 {% if user.is_admin %}text-danger{% else %}text-primary{% endif %}"></i>
+                                        <span>{{ user.username }}</span>
+                                        {% if user.user_id == session.user_id %}
+                                        <span class="badge bg-info ms-2">You</span>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td>{{ user.email or '-' }}</td>
+                                <td>
+                                    {% if user.is_admin %}
+                                    <span class="badge bg-danger">Administrator</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">User</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ user.created_at | format_datetime }}</td>
+                                <td>
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <a href="{{ url_for('auth.admin_edit_user', user_id=user.user_id) }}" class="btn btn-outline-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#resetPasswordModal-{{ user.user_id }}">
+                                            <i class="fas fa-key"></i>
+                                        </button>
+                                        {% if user.user_id != session.user_id %}
+                                        <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteUserModal-{{ user.user_id }}">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- Reset Password Modal -->
+                            <div class="modal fade" id="resetPasswordModal-{{ user.user_id }}" tabindex="-1" aria-labelledby="resetPasswordModalLabel-{{ user.user_id }}" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="resetPasswordModalLabel-{{ user.user_id }}">Reset Password for {{ user.username }}</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>Are you sure you want to reset the password for <strong>{{ user.username }}</strong>?</p>
+                                            <p>A new random password will be generated and displayed.</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <form action="{{ url_for('auth.admin_reset_password', user_id=user.user_id) }}" method="POST">
+                                                <button type="submit" class="btn btn-warning">Reset Password</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Delete User Modal -->
+                            {% if user.user_id != session.user_id %}
+                            <div class="modal fade" id="deleteUserModal-{{ user.user_id }}" tabindex="-1" aria-labelledby="deleteUserModalLabel-{{ user.user_id }}" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="deleteUserModalLabel-{{ user.user_id }}">Delete User {{ user.username }}</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>Are you sure you want to delete the user <strong>{{ user.username }}</strong>?</p>
+                                            <p class="text-danger">This action cannot be undone.</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <form action="{{ url_for('auth.admin_delete_user', user_id=user.user_id) }}" method="POST">
+                                                <button type="submit" class="btn btn-danger">Delete User</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-users fa-3x mb-3 text-secondary"></i>
+                    <h4>No users found</h4>
+                    <p class="text-muted">Create a new user to get started</p>
+                    <a href="{{ url_for('auth.admin_add_user') }}" class="btn btn-primary mt-2">
+                        <i class="fas fa-user-plus me-1"></i> Add User
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

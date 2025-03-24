@@ -1,0 +1,67 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "github-activity-tracker"
+version = "1.0.0"
+description = "Track and visualize GitHub user activities"
+authors = [
+    {name = "Clement Gaboriau Couanau", email = "N/A"},
+]
+readme = "README.md"
+requires-python = ">=3.7"
+license = {text = "MIT"}
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "pygithub",
+    "pandas",
+    "matplotlib",
+    "python-dotenv",
+    "jinja2",
+]
+
+[project.scripts]
+github-activity-tracker = "github_activity_tracker.cli:main"
+
+[tool.ruff]
+# Same as Black.
+line-length = 100
+
+# Assume Python 3.7
+target-version = "py37"
+
+[tool.ruff.lint]
+# Enable flake8-bugbear (`B`) rules.
+select = ["E", "F", "B", "I", "W", "C90"]
+
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    ".git",
+    ".ruff_cache",
+    ".venv",
+    "venv",
+    "__pypackages__",
+    "dist",
+    "build",
+]
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"] # Ignore unused imports in __init__.py files
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_functions = "test_*"
+python_classes = "Test*"
+addopts = "--cov=github_activity_tracker --cov-report=term --cov-report=html --cov-report=xml"

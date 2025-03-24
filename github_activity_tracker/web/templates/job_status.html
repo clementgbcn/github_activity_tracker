@@ -1,0 +1,219 @@
+{% extends 'base.html' %}
+
+{% block title %}GitHub Activity Tracker - Job Status{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div>
+                    <i class="fas fa-tasks me-2"></i>
+                    <span>Job Status</span>
+                </div>
+                <span class="status-badge status-{{ job.status }}">
+                    {% if job.status == 'initializing' %}
+                        <i class="fas fa-cog fa-spin me-1"></i> Initializing
+                    {% elif job.status == 'running' %}
+                        <i class="fas fa-spinner fa-spin me-1"></i> Running
+                    {% elif job.status == 'generating_report' %}
+                        <i class="fas fa-file-export fa-spin me-1"></i> Generating Report
+                    {% elif job.status == 'completed' %}
+                        <i class="fas fa-check-circle me-1"></i> Completed
+                    {% elif job.status == 'failed' %}
+                        <i class="fas fa-times-circle me-1"></i> Failed
+                    {% elif job.status == 'cancelled' %}
+                        <i class="fas fa-ban me-1"></i> Cancelled
+                    {% endif %}
+                </span>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h5 class="card-title">Job Information</h5>
+                        <table class="table table-sm">
+                            <tr>
+                                <th>Job ID:</th>
+                                <td><code>{{ job_id }}</code></td>
+                            </tr>
+                            <tr>
+                                <th>Start Time:</th>
+                                <td>{{ job.start_time | format_datetime }}</td>
+                            </tr>
+                            {% if job.end_time %}
+                            <tr>
+                                <th>End Time:</th>
+                                <td>{{ job.end_time | format_datetime }}</td>
+                            </tr>
+                            <tr>
+                                <th>Duration:</th>
+                                <td>{{ job.start_time | format_duration(job.end_time) }}</td>
+                            </tr>
+                            {% endif %}
+                            <tr>
+                                <th>Organization:</th>
+                                <td>{{ job.parameters.org or 'All organizations' }}</td>
+                            </tr>
+                            <tr>
+                                <th>Date Range:</th>
+                                <td>{{ job.parameters.date_from }} to {{ job.parameters.date_to }}</td>
+                            </tr>
+                            <tr>
+                                <th>Output Format:</th>
+                                <td>{{ job.parameters.output_format | upper }}</td>
+                            </tr>
+                            <tr>
+                                <th>Parallel Processing:</th>
+                                <td>
+                                    {% if job.parameters.max_workers == 0 %}
+                                        Auto (optimal)
+                                    {% else %}
+                                        {{ job.parameters.max_workers }} worker{% if job.parameters.max_workers != 1 %}s{% endif %}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h5 class="card-title">Progress</h5>
+                        <div class="progress-container">
+                            <div class="progress">
+                                {% set progress = (job.processed_users / job.total_users) * 100 if job.total_users > 0 else 0 %}
+                                <div class="progress-bar {% if job.status == 'failed' %}bg-danger{% elif job.status == 'completed' %}bg-success{% endif %}"
+                                     role="progressbar"
+                                     style="width: {{ progress }}%;"
+                                     aria-valuenow="{{ progress }}"
+                                     aria-valuemin="0"
+                                     aria-valuemax="100">
+                                    {{ progress | int }}%
+                                </div>
+                            </div>
+                            <div class="mt-2 d-flex justify-content-between">
+                                <small>{{ job.processed_users }} / {{ job.total_users }} users processed</small>
+                                <small>{{ job.activities | length }} activities found</small>
+                            </div>
+                        </div>
+
+                        {% if job.status == 'running' or job.status == 'initializing' %}
+                        <div class="mt-3">
+                            <p><strong>Current user:</strong> {{ job.current_user or 'Initializing...' }}</p>
+                            <div class="d-flex">
+                                <form action="{{ url_for('cancel_job', job_id=job_id) }}" method="POST" id="stopJobForm" class="me-2">
+                                    <button type="button" class="btn btn-warning" id="stopJobBtn">
+                                        <i class="fas fa-stop-circle me-1"></i> Stop Job
+                                    </button>
+                                </form>
+                                <a href="{{ url_for('thread_monitor') }}" class="btn btn-info">
+                                    <i class="fas fa-heartbeat me-1"></i> Monitor Threads
+                                </a>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if job.status == 'completed' and job.report_path %}
+                        <div class="mt-3">
+                            <a href="{{ url_for('view_report', job_id=job_id) }}" class="btn btn-success">
+                                <i class="fas fa-chart-bar me-1"></i> View Results
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% if job.errors %}
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <h5 class="card-title text-danger">
+                            <i class="fas fa-exclamation-triangle me-1"></i> Errors
+                        </h5>
+                        <div class="log-container">
+                            {% for error in job.errors %}
+                            <div class="log-entry log-error">
+                                <i class="fas fa-times-circle me-1"></i> {{ error }}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <h5 class="card-title">Users</h5>
+                        <div class="user-list" style="max-height: 200px; overflow-y: auto;">
+                            <div class="row">
+                                {% for user in job.parameters.users %}
+                                <div class="col-md-3 col-sm-4 col-6 mb-2">
+                                    <div class="d-flex align-items-center">
+                                        {% if job.current_user == user and job.status in ['initializing', 'running'] %}
+                                        <span class="badge bg-primary me-2">
+                                            <i class="fas fa-spinner fa-spin"></i>
+                                        </span>
+                                        {% elif job.processed_users >= loop.index or job.status in ['completed', 'failed', 'cancelled'] %}
+                                        <span class="badge bg-success me-2">
+                                            <i class="fas fa-check"></i>
+                                        </span>
+                                        {% else %}
+                                        <span class="badge bg-secondary me-2">
+                                            <i class="fas fa-clock"></i>
+                                        </span>
+                                        {% endif %}
+                                        <a href="https://github.com/{{ user }}" target="_blank" rel="noopener noreferrer">
+                                            {{ user }}
+                                        </a>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-refresh for running jobs
+        const jobStatus = '{{ job.status }}';
+
+        if (jobStatus === 'running' || jobStatus === 'initializing' || jobStatus === 'generating_report') {
+            // Refresh every 5 seconds
+            setTimeout(function() {
+                // Refresh the page to show updated status
+                window.location.reload();
+            }, 5000);
+        }
+
+        // Handle stop job button
+        const stopJobBtn = document.getElementById('stopJobBtn');
+        if (stopJobBtn) {
+            stopJobBtn.addEventListener('click', function() {
+                if (confirm('Are you sure you want to stop this job?')) {
+                    // Use fetch to send POST request
+                    fetch('{{ url_for("cancel_job", job_id=job_id) }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    })
+                    .then(response => {
+                        // The endpoint returns a redirect, not JSON
+                        // Just reload the page regardless of response format
+                        window.location.reload();
+                    })
+                    .catch(error => {
+                        console.error('Error stopping job:', error);
+                        alert('Error stopping job');
+                        // Reload anyway to show current status
+                        window.location.reload();
+                    });
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

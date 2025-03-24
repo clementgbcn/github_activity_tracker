@@ -1,0 +1,1618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="weasyprint-orientation" content="landscape">
+    <title>GitHub Activity Report</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Base Styles & Variables */
+        :root {
+            --primary: #2188ff;
+            --primary-dark: #0366d6;
+            --primary-light: #dbedff;
+            --secondary: #6f42c1;
+            --text-primary: #24292e;
+            --text-secondary: #586069;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f6f8fa;
+            --border-color: #e1e4e8;
+            --success: #2cbe4e;
+            --danger: #cb2431;
+            --warning: #f9c513;
+            --box-shadow: 0 3px 6px rgba(149, 157, 165, 0.15);
+            --border-radius: 6px;
+            --transition: all 0.2s ease-in-out;
+        }
+
+        /* Global Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            color: var(--text-primary);
+            background-color: var(--bg-primary);
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(120deg, var(--primary-dark), var(--secondary));
+            color: white;
+            padding: 40px 0;
+            margin-bottom: 40px;
+            box-shadow: var(--box-shadow);
+        }
+
+        .logo-wrapper {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .report-logo {
+            height: 50px;
+            margin-right: 15px;
+            border-radius: 8px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 2.2rem;
+            font-weight: 600;
+        }
+
+        .header p {
+            margin-top: 10px;
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        /* Sections */
+        .section {
+            margin-bottom: 40px;
+            background-color: var(--bg-primary);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            background-color: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .section-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+
+        .section-header i {
+            margin-right: 12px;
+            font-size: 1.3rem;
+            color: var(--primary-dark);
+        }
+
+        .section-body {
+            padding: 20px;
+        }
+
+        /* Stats Cards */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-card {
+            padding: 20px;
+            background-color: white;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--box-shadow);
+        }
+
+        .stat-card h3 {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .stat-card h3 i {
+            margin-right: 8px;
+            color: var(--primary-dark);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            line-height: 1;
+        }
+
+        /* Graphs */
+        .graphs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .graph-container {
+            background-color: white;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .graph-container:hover {
+            box-shadow: var(--box-shadow);
+            transform: translateY(-3px);
+        }
+
+        .graph-header {
+            padding: 15px;
+            background-color: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .graph-header h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .graph-body {
+            padding: 15px;
+            position: relative;
+        }
+
+        .graph-link {
+            display: block;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .clickable-graph {
+            max-width: 100%;
+            border-radius: 4px;
+            display: block;
+            transition: var(--transition);
+        }
+
+        .graph-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: var(--transition);
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .graph-overlay i {
+            margin-right: 8px;
+        }
+
+        .graph-link:hover .graph-overlay {
+            opacity: 1;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            padding: 20px;
+            overflow: auto;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 1;
+        }
+
+        .modal-content {
+            position: relative;
+            background-color: white;
+            max-width: 90%;
+            max-height: 90vh;
+            border-radius: var(--border-radius);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            margin: auto;
+            overflow-y: auto;
+            animation: modal-in 0.3s ease;
+        }
+
+        @keyframes modal-in {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-header {
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .modal-close:hover {
+            color: var(--danger);
+        }
+
+        .modal-body {
+            overflow-y: auto;
+            max-height: calc(90vh - 80px); /* Account for header height and padding */
+            text-align: center;
+            padding-right: 5px; /* Add padding for scrollbar */
+        }
+
+        .modal-body img {
+            max-width: 100%;
+            max-height: 70vh;
+            border-radius: var(--border-radius);
+        }
+
+        /* Ensure column settings sections are properly laid out for scrolling */
+        .column-settings {
+            max-height: 100%;
+            overflow-y: visible;
+        }
+
+        /* Filter controls */
+        .filter-container {
+            background-color: white;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .filter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .filter-header h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+        }
+
+        .filter-header h3 i {
+            margin-right: 8px;
+            color: var(--primary-dark);
+        }
+
+        .filter-body {
+            padding: 20px;
+        }
+
+        .filter-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .filter-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            background-color: white;
+            transition: var(--transition);
+        }
+
+        .filter-group select:focus,
+        .filter-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 10px 16px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            border-radius: var(--border-radius);
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn i {
+            margin-right: 8px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: #e9ebef;
+        }
+
+        .filter-results {
+            margin-top: 15px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        th {
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            font-weight: 600;
+            text-align: left;
+            padding: 12px 15px;
+            border-bottom: 2px solid var(--border-color);
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        th:hover {
+            background-color: #e9ebef;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover {
+            background-color: var(--primary-light);
+        }
+
+        /* Link styles */
+        a {
+            color: var(--primary-dark);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        a:hover {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+
+        /* Sort indicator */
+        .sort-icon::after {
+            content: '\f0dc';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            margin-left: 8px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .sort-asc::after {
+            content: '\f0de';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            margin-left: 8px;
+            font-size: 0.85rem;
+            color: var(--primary);
+        }
+
+        .sort-desc::after {
+            content: '\f0dd';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            margin-left: 8px;
+            font-size: 0.85rem;
+            color: var(--primary);
+        }
+
+        /* Details formatting */
+        .details-container ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .details-container li {
+            margin-bottom: 3px;
+            display: flex;
+        }
+
+        .details-container strong {
+            min-width: 120px;
+            display: inline-block;
+            color: var(--text-secondary);
+        }
+
+        /* Column Settings Styles */
+        .column-toggles, .column-widths {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .column-toggle {
+            display: flex;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .column-toggle input[type="checkbox"] {
+            margin-right: 8px;
+        }
+
+        .column-toggle label {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .column-width-control {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 8px;
+        }
+
+        .column-width-control label {
+            margin-bottom: 3px;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .column-width-control input {
+            width: 100%;
+        }
+
+        /* Responsive column settings */
+        @media (max-width: 768px) {
+            .column-toggles, .column-widths {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .column-toggles, .column-widths {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .column-order {
+            margin-top: 10px;
+            border: 1px dashed var(--border-color);
+            padding: 10px;
+            border-radius: var(--border-radius);
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .column-order-item {
+            padding: 8px 10px;
+            margin-bottom: 5px;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            cursor: move;
+            display: flex;
+            align-items: center;
+            transition: var(--transition);
+        }
+
+        .column-order-item:hover {
+            background-color: var(--primary-light);
+        }
+
+        .column-order-item i {
+            margin-right: 8px;
+            color: var(--text-secondary);
+        }
+
+        .column-order-item.dragging {
+            opacity: 0.5;
+            background-color: var(--primary-light);
+        }
+
+        /* Resizable columns */
+        .resizable-table th {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .resize-handle {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 5px;
+            height: 100%;
+            cursor: col-resize;
+            user-select: none;
+        }
+
+        .resize-handle:hover,
+        .resize-handle.active {
+            background-color: var(--primary);
+        }
+
+        /* Footer */
+        .footer {
+            background-color: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            padding: 20px 0;
+            margin-top: 40px;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .header { padding: 30px 0; }
+            .header h1 { font-size: 1.8rem; }
+            .stats { grid-template-columns: 1fr; }
+            .graphs { grid-template-columns: 1fr; }
+            .filter-row { grid-template-columns: 1fr; }
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Create modal for graph viewing
+            createImageModal();
+            setupGraphLinks();
+
+            // Get table elements
+            const table = document.getElementById('activity-table');
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+
+            // Extract unique values for select filters
+            const uniqueUsers = [...new Set(rows.map(row => row.cells[0].textContent))];
+            const uniqueTypes = [...new Set(rows.map(row => row.cells[2].textContent))];
+            const uniqueStates = [...new Set(rows.map(row => row.cells[3].textContent))];
+            const uniqueRepos = [...new Set(rows.map(row => row.cells[4].textContent))];
+
+            // Populate filter dropdowns
+            const userSelect = document.getElementById('user-filter');
+            const typeSelect = document.getElementById('type-filter');
+            const stateSelect = document.getElementById('state-filter');
+            const repoSelect = document.getElementById('repo-filter');
+
+            populateSelect(userSelect, uniqueUsers);
+            populateSelect(typeSelect, uniqueTypes);
+            populateSelect(stateSelect, uniqueStates);
+            populateSelect(repoSelect, uniqueRepos);
+
+            // Filter function
+            function applyFilters() {
+                const userValue = userSelect.value;
+                const typeValue = typeSelect.value;
+                const stateValue = stateSelect.value;
+                const repoValue = repoSelect.value;
+                const searchValue = document.getElementById('search-filter').value.toLowerCase();
+                const dateStart = document.getElementById('date-start').value;
+                const dateEnd = document.getElementById('date-end').value;
+
+                rows.forEach(row => {
+                    const userMatch = userValue === '' || row.cells[0].textContent === userValue;
+                    const typeMatch = typeValue === '' || row.cells[2].textContent === typeValue;
+                    const stateMatch = stateValue === '' || row.cells[3].textContent === stateValue;
+                    const repoMatch = repoValue === '' || row.cells[4].textContent === repoValue;
+
+                    // Search in all cells
+                    let searchMatch = true;
+                    if (searchValue) {
+                        searchMatch = Array.from(row.cells).some(cell =>
+                            cell.textContent.toLowerCase().includes(searchValue)
+                        );
+                    }
+
+                    // Date filtering (column index 1)
+                    let dateMatch = true;
+                    const rowDate = new Date(row.cells[1].textContent);
+                    if (dateStart) {
+                        dateMatch = dateMatch && rowDate >= new Date(dateStart);
+                    }
+                    if (dateEnd) {
+                        // Add one day to make the end date inclusive
+                        const endDateObj = new Date(dateEnd);
+                        endDateObj.setDate(endDateObj.getDate() + 1);
+                        dateMatch = dateMatch && rowDate < endDateObj;
+                    }
+
+                    row.style.display = userMatch && typeMatch && stateMatch && repoMatch && searchMatch && dateMatch ? '' : 'none';
+                });
+
+                updateVisibleCount();
+            }
+
+            // Update visible count
+            function updateVisibleCount() {
+                const visibleRows = rows.filter(row => row.style.display !== 'none').length;
+                document.getElementById('visible-count').textContent = `Showing ${visibleRows} of ${rows.length} activities`;
+            }
+
+            // Add event listeners
+            document.getElementById('filter-button').addEventListener('click', applyFilters);
+            document.getElementById('clear-button').addEventListener('click', function() {
+                document.getElementById('user-filter').value = '';
+                document.getElementById('type-filter').value = '';
+                document.getElementById('repo-filter').value = '';
+                document.getElementById('search-filter').value = '';
+                document.getElementById('date-start').value = '';
+                document.getElementById('date-end').value = '';
+                rows.forEach(row => row.style.display = '');
+                updateVisibleCount();
+            });
+
+            // Add sorting functionality
+            const headers = table.querySelectorAll('th');
+            headers.forEach((header, index) => {
+                header.classList.add('sort-icon');
+                header.addEventListener('click', function() {
+                    sortTable(index);
+                });
+            });
+
+            // Track current sort state
+            let currentSortColumn = -1;
+            let currentSortDirection = 'none';
+
+            function sortTable(columnIndex) {
+                // Determine sort direction
+                const currentHeader = headers[columnIndex];
+                let isAscending = true;
+
+                // Logic to toggle between ascending, descending, and no sort
+                if (currentSortColumn === columnIndex) {
+                    if (currentSortDirection === 'asc') {
+                        isAscending = false;
+                        currentSortDirection = 'desc';
+                    } else if (currentSortDirection === 'desc') {
+                        // Reset to original order on third click
+                        isAscending = true;
+                        currentSortDirection = 'asc';
+                    }
+                } else {
+                    // New column, start with ascending
+                    currentSortColumn = columnIndex;
+                    currentSortDirection = 'asc';
+                }
+
+                // Remove sort classes from all headers
+                headers.forEach(h => {
+                    h.classList.remove('sort-asc', 'sort-desc');
+                    h.classList.add('sort-icon');
+                });
+
+                // Update header class
+                currentHeader.classList.remove('sort-icon');
+                currentHeader.classList.add(isAscending ? 'sort-asc' : 'sort-desc');
+
+                // Sort rows
+                rows.sort((a, b) => {
+                    let valueA = a.cells[columnIndex].textContent;
+                    let valueB = b.cells[columnIndex].textContent;
+
+                    // Special case for date columns
+                    if (columnIndex === 1) { // Date column
+                        valueA = new Date(valueA);
+                        valueB = new Date(valueB);
+                        return isAscending ? valueA - valueB : valueB - valueA;
+                    }
+
+                    // Detect numeric columns (comments count and other numeric data)
+                    // This regex checks if the text contains only digits, possibly with commas or whitespace
+                    const numericRegex = /^\s*\d+(\s*,\s*\d+)*\s*$/;
+                    if (numericRegex.test(valueA) && numericRegex.test(valueB)) {
+                        // Convert to numbers by removing commas and spaces
+                        valueA = parseInt(valueA.replace(/[\s,]/g, ''), 10);
+                        valueB = parseInt(valueB.replace(/[\s,]/g, ''), 10);
+                        return isAscending ? valueA - valueB : valueB - valueA;
+                    }
+
+                    // String comparison for other columns
+                    if (isAscending) {
+                        return valueA.localeCompare(valueB);
+                    } else {
+                        return valueB.localeCompare(valueA);
+                    }
+                });
+
+                // Reorder in the DOM
+                rows.forEach(row => tbody.appendChild(row));
+            }
+
+            // Helper to populate select elements
+            function populateSelect(select, values) {
+                // Add empty option for "All"
+                const emptyOption = document.createElement('option');
+                emptyOption.value = '';
+                emptyOption.textContent = 'All';
+                select.appendChild(emptyOption);
+
+                // Sort values alphabetically
+                values.sort();
+
+                // Add options
+                values.forEach(value => {
+                    const option = document.createElement('option');
+                    option.value = value;
+                    option.textContent = value;
+                    select.appendChild(option);
+                });
+            }
+
+            // Initialize count
+            updateVisibleCount();
+
+            // === Column Management Functionality ===
+            // Initialize column settings
+            const columnModal = document.getElementById('column-modal');
+            const columnSettingsBtn = document.getElementById('column-settings-button');
+            const closeColumnModal = columnModal.querySelector('.modal-close');
+            const columnToggles = document.getElementById('column-toggles');
+            const columnWidths = document.getElementById('column-widths');
+            const columnOrder = document.getElementById('column-order');
+            const applyColumnSettings = document.getElementById('apply-column-settings');
+            const resetColumns = document.getElementById('reset-columns');
+
+            // Column state
+            let columnState = {
+                visibility: {},
+                widths: {},
+                order: []
+            };
+
+            // Initialize table for column management
+            function initializeColumnManagement() {
+                // Add class to the table for resizable columns
+                table.classList.add('resizable-table');
+
+                // Get column headers
+                const headers = Array.from(table.querySelectorAll('thead th'));
+
+                // Save original column state
+                columnState.order = headers.map(header => header.textContent.trim());
+
+                // Try to load saved column state from localStorage
+                try {
+                    const savedState = localStorage.getItem('activityTableColumnState');
+                    if (savedState) {
+                        const parsedState = JSON.parse(savedState);
+                        // Only use if the columns match our current table
+                        const currentColumns = headers.map(h => h.textContent.trim());
+                        const savedColumns = Object.keys(parsedState.visibility || {});
+
+                        // Check if saved columns match current columns
+                        const columnsMatch = currentColumns.length === savedColumns.length &&
+                            currentColumns.every(col => savedColumns.includes(col));
+
+                        if (columnsMatch) {
+                            columnState = parsedState;
+                            applyColumnStateToTable();
+                        }
+                    }
+                } catch (e) {
+                    console.error('Error loading saved column state:', e);
+                }
+
+                // Add resize handles to headers
+                headers.forEach((header, index) => {
+                    const resizeHandle = document.createElement('div');
+                    resizeHandle.className = 'resize-handle';
+                    header.appendChild(resizeHandle);
+
+                    // Initialize width state if not already set
+                    const columnName = header.textContent.trim();
+                    if (!columnState.widths[columnName]) {
+                        columnState.widths[columnName] = header.offsetWidth;
+                    }
+
+                    // Initialize visibility state if not already set
+                    if (columnState.visibility[columnName] === undefined) {
+                        columnState.visibility[columnName] = true;
+                    }
+
+                    // Set up resize event handlers
+                    resizeHandle.addEventListener('mousedown', function(e) {
+                        e.preventDefault();
+                        const startX = e.pageX;
+                        const startWidth = header.offsetWidth;
+                        resizeHandle.classList.add('active');
+
+                        function onMouseMove(e) {
+                            const width = Math.max(50, startWidth + e.pageX - startX);
+                            header.style.width = width + 'px';
+
+                            // Update all cells in this column
+                            const columnIndex = Array.from(header.parentNode.children).indexOf(header);
+                            const rows = table.querySelectorAll('tbody tr');
+                            rows.forEach(row => {
+                                if (row.cells[columnIndex]) {
+                                    row.cells[columnIndex].style.width = width + 'px';
+                                }
+                            });
+                        }
+
+                        function onMouseUp() {
+                            document.removeEventListener('mousemove', onMouseMove);
+                            document.removeEventListener('mouseup', onMouseUp);
+                            resizeHandle.classList.remove('active');
+
+                            // Save the new width
+                            columnState.widths[columnName] = header.offsetWidth;
+                            saveColumnState();
+                        }
+
+                        document.addEventListener('mousemove', onMouseMove);
+                        document.addEventListener('mouseup', onMouseUp);
+                    });
+                });
+            }
+
+            // Apply column state to the table
+            function applyColumnStateToTable() {
+                const headers = Array.from(table.querySelectorAll('thead th'));
+                const rows = Array.from(table.querySelectorAll('tbody tr'));
+
+                // Apply order first (if order array exists and has items)
+                if (columnState.order && columnState.order.length > 0) {
+                    // Get the header row
+                    const headerRow = table.querySelector('thead tr');
+
+                    // Create a map of column names to their DOM elements
+                    const headerMap = {};
+                    headers.forEach(header => {
+                        headerMap[header.textContent.trim()] = header;
+                    });
+
+                    // Temporarily detach all headers to avoid DOM reflow
+                    const headerParent = headerRow.parentNode;
+                    const headerFragment = document.createDocumentFragment();
+
+                    // Add headers to fragment in the correct order
+                    columnState.order.forEach(columnName => {
+                        if (headerMap[columnName]) {
+                            headerFragment.appendChild(headerMap[columnName]);
+                        }
+                    });
+
+                    // Clear header row and append fragment
+                    while (headerRow.firstChild) {
+                        headerRow.removeChild(headerRow.firstChild);
+                    }
+                    headerRow.appendChild(headerFragment);
+
+                    // Now reorder cells in each row to match header order
+                    const newHeaders = Array.from(headerRow.querySelectorAll('th'));
+
+                    rows.forEach(row => {
+                        const rowFragment = document.createDocumentFragment();
+
+                        // Create a map of column indices to cells
+                        const cellsByIndex = {};
+                        Array.from(row.cells).forEach(cell => {
+                            const index = Array.from(row.cells).indexOf(cell);
+                            cellsByIndex[index] = cell;
+                        });
+
+                        // Get new ordering based on headers
+                        const newOrder = newHeaders.map(header => {
+                            return headers.indexOf(header);
+                        });
+
+                        // Add cells to fragment in new order
+                        newOrder.forEach(oldIndex => {
+                            if (cellsByIndex[oldIndex]) {
+                                rowFragment.appendChild(cellsByIndex[oldIndex]);
+                            }
+                        });
+
+                        // Clear row and append fragment
+                        while (row.firstChild) {
+                            row.removeChild(row.firstChild);
+                        }
+                        row.appendChild(rowFragment);
+                    });
+                }
+
+                // Now apply visibility and width, using current DOM order
+                const currentHeaders = Array.from(table.querySelectorAll('thead th'));
+
+                currentHeaders.forEach((header, index) => {
+                    const columnName = header.textContent.trim();
+
+                    // Apply visibility
+                    const isVisible = columnState.visibility[columnName] !== false; // Default to visible
+                    header.style.display = isVisible ? '' : 'none';
+
+                    // Apply width
+                    const width = columnState.widths[columnName];
+                    if (width) {
+                        header.style.width = width + 'px';
+                    }
+
+                    // Apply to cells in this column
+                    rows.forEach(row => {
+                        if (row.cells[index]) {
+                            // Apply visibility
+                            row.cells[index].style.display = isVisible ? '' : 'none';
+
+                            // Apply width
+                            if (width) {
+                                row.cells[index].style.width = width + 'px';
+                            }
+                        }
+                    });
+                });
+
+                // Refresh table display
+                table.style.display = 'none';
+                setTimeout(() => {
+                    table.style.display = '';
+                }, 10);
+            }
+
+            // Save column state to localStorage
+            function saveColumnState() {
+                try {
+                    localStorage.setItem('activityTableColumnState', JSON.stringify(columnState));
+                } catch (e) {
+                    console.error('Error saving column state:', e);
+                }
+            }
+
+            // Populate column settings modal
+            function populateColumnSettings() {
+                const headers = Array.from(table.querySelectorAll('thead th'));
+
+                // Clear existing content
+                columnToggles.innerHTML = '';
+                columnWidths.innerHTML = '';
+                columnOrder.innerHTML = '';
+
+                // Populate column visibility toggles
+                headers.forEach(header => {
+                    const columnName = header.textContent.trim();
+                    const isVisible = columnState.visibility[columnName] !== false; // Default to visible
+
+                    const toggle = document.createElement('div');
+                    toggle.className = 'column-toggle';
+                    toggle.innerHTML = `
+                        <input type="checkbox" id="toggle-${columnName}"
+                               ${isVisible ? 'checked' : ''}>
+                        <label for="toggle-${columnName}">${columnName}</label>
+                    `;
+                    columnToggles.appendChild(toggle);
+
+                    // Add event listener to checkbox
+                    const checkbox = toggle.querySelector('input');
+                    checkbox.addEventListener('change', function() {
+                        columnState.visibility[columnName] = this.checked;
+                    });
+                });
+
+                // Populate column width controls
+                headers.forEach(header => {
+                    const columnName = header.textContent.trim();
+                    const width = columnState.widths[columnName] || header.offsetWidth;
+
+                    const widthControl = document.createElement('div');
+                    widthControl.className = 'column-width-control';
+                    widthControl.innerHTML = `
+                        <label for="width-${columnName}">${columnName}</label>
+                        <input type="range" id="width-${columnName}"
+                               min="50" max="500" value="${width}">
+                        <small><span id="width-value-${columnName}">${width}</span>px</small>
+                    `;
+                    columnWidths.appendChild(widthControl);
+
+                    // Add event listener to range input
+                    const range = widthControl.querySelector('input');
+                    const valueSpan = widthControl.querySelector(`#width-value-${columnName}`);
+                    range.addEventListener('input', function() {
+                        valueSpan.textContent = this.value;
+                        columnState.widths[columnName] = parseInt(this.value);
+                    });
+                });
+
+                // Populate column order (drag & drop)
+                // We'll use the current order from columnState if it exists
+                const orderToUse = columnState.order && columnState.order.length > 0
+                    ? [...columnState.order]
+                    : headers.map(h => h.textContent.trim());
+
+                orderToUse.forEach(columnName => {
+                    const orderItem = document.createElement('div');
+                    orderItem.className = 'column-order-item';
+                    orderItem.setAttribute('draggable', 'true');
+                    orderItem.setAttribute('data-column', columnName);
+                    orderItem.innerHTML = `
+                        <i class="fas fa-bars"></i> ${columnName}
+                    `;
+                    columnOrder.appendChild(orderItem);
+
+                    // Set up drag and drop
+                    orderItem.addEventListener('dragstart', handleDragStart);
+                    orderItem.addEventListener('dragover', handleDragOver);
+                    orderItem.addEventListener('dragenter', handleDragEnter);
+                    orderItem.addEventListener('dragleave', handleDragLeave);
+                    orderItem.addEventListener('drop', handleDrop);
+                    orderItem.addEventListener('dragend', handleDragEnd);
+                });
+            }
+
+            // Drag and drop functionality for column reordering
+            let dragSrcElement = null;
+
+            function handleDragStart(e) {
+                dragSrcElement = this;
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/plain', this.getAttribute('data-column'));
+                this.classList.add('dragging');
+            }
+
+            function handleDragOver(e) {
+                if (e.preventDefault) {
+                    e.preventDefault();
+                }
+                e.dataTransfer.dropEffect = 'move';
+                return false;
+            }
+
+            function handleDragEnter(e) {
+                this.classList.add('over');
+            }
+
+            function handleDragLeave(e) {
+                this.classList.remove('over');
+            }
+
+            function handleDrop(e) {
+                if (e.stopPropagation) {
+                    e.stopPropagation();
+                }
+
+                if (dragSrcElement !== this) {
+                    // Get the source and target columns
+                    const sourceColumn = dragSrcElement.getAttribute('data-column');
+                    const targetColumn = this.getAttribute('data-column');
+
+                    // Get the current order array from the DOM
+                    const currentOrderItems = Array.from(columnOrder.children);
+                    const currentOrder = currentOrderItems.map(item =>
+                        item.getAttribute('data-column')
+                    );
+
+                    // Remove the source column from current order
+                    const sourceIndex = currentOrder.indexOf(sourceColumn);
+                    if (sourceIndex > -1) {
+                        currentOrder.splice(sourceIndex, 1);
+                    }
+
+                    // Find the target index
+                    const targetIndex = currentOrder.indexOf(targetColumn);
+
+                    // Decide whether to insert before or after target
+                    const rect = this.getBoundingClientRect();
+                    const dropY = e.clientY;
+                    const middleY = rect.top + rect.height / 2;
+
+                    // Create the new order array with the source inserted at the correct position
+                    const newOrder = [...currentOrder];
+
+                    if (dropY < middleY) {
+                        // Insert before
+                        newOrder.splice(targetIndex, 0, sourceColumn);
+                    } else {
+                        // Insert after
+                        newOrder.splice(targetIndex + 1, 0, sourceColumn);
+                    }
+
+                    // Update column order state
+                    columnState.order = newOrder;
+
+                    // Refresh the order display
+                    populateColumnSettings();
+                }
+
+                return false;
+            }
+
+            function handleDragEnd(e) {
+                Array.from(columnOrder.children).forEach(item => {
+                    item.classList.remove('over', 'dragging');
+                });
+            }
+
+            // Event listeners for column settings modal
+            columnSettingsBtn.addEventListener('click', function() {
+                populateColumnSettings();
+                columnModal.classList.add('show');
+            });
+
+            closeColumnModal.addEventListener('click', function() {
+                columnModal.classList.remove('show');
+            });
+
+            columnModal.addEventListener('click', function(event) {
+                if (event.target === columnModal) {
+                    columnModal.classList.remove('show');
+                }
+            });
+
+            applyColumnSettings.addEventListener('click', function() {
+                // Make sure we have the latest settings from the form controls
+                const visibilityToggles = columnToggles.querySelectorAll('input[type="checkbox"]');
+                visibilityToggles.forEach(toggle => {
+                    const columnName = toggle.id.replace('toggle-', '');
+                    columnState.visibility[columnName] = toggle.checked;
+                });
+
+                const widthSliders = columnWidths.querySelectorAll('input[type="range"]');
+                widthSliders.forEach(slider => {
+                    const columnName = slider.id.replace('width-', '');
+                    columnState.widths[columnName] = parseInt(slider.value);
+                });
+
+                // Apply settings to table
+                applyColumnStateToTable();
+                saveColumnState();
+                columnModal.classList.remove('show');
+
+                // Log to console for debugging
+                console.log('Applied column settings:', JSON.stringify(columnState));
+            });
+
+            resetColumns.addEventListener('click', function() {
+                // Reset to default state
+                const headers = Array.from(table.querySelectorAll('thead th'));
+                columnState = {
+                    visibility: {},
+                    widths: {},
+                    order: headers.map(h => h.textContent.trim())
+                };
+
+                // Default all columns to visible
+                headers.forEach(header => {
+                    const columnName = header.textContent.trim();
+                    columnState.visibility[columnName] = true;
+                    columnState.widths[columnName] = null; // Use browser default
+                });
+
+                // Refresh the settings display
+                populateColumnSettings();
+
+                // Apply changes
+                applyColumnStateToTable();
+                saveColumnState();
+
+                // Reset DOM styles
+                headers.forEach(header => {
+                    header.style.display = '';
+                    header.style.width = '';
+                });
+
+                const cells = Array.from(table.querySelectorAll('tbody td'));
+                cells.forEach(cell => {
+                    cell.style.display = '';
+                    cell.style.width = '';
+                });
+            });
+
+            // Initialize column management
+            initializeColumnManagement();
+
+            // === Graph Modal Functionality ===
+
+            // Create the modal for graph viewing
+            function createImageModal() {
+                // Create modal elements
+                const modal = document.createElement('div');
+                modal.id = 'graph-modal';
+                modal.className = 'modal';
+
+                const modalContent = document.createElement('div');
+                modalContent.className = 'modal-content';
+
+                const modalHeader = document.createElement('div');
+                modalHeader.className = 'modal-header';
+
+                const modalTitle = document.createElement('h2');
+                modalTitle.className = 'modal-title';
+                modalTitle.id = 'modal-title';
+
+                const closeButton = document.createElement('button');
+                closeButton.className = 'modal-close';
+                closeButton.innerHTML = '&times;';
+                closeButton.setAttribute('aria-label', 'Close');
+
+                const modalBody = document.createElement('div');
+                modalBody.className = 'modal-body';
+
+                const modalImage = document.createElement('img');
+                modalImage.id = 'modal-image';
+                modalImage.alt = 'Graph';
+
+                // Assemble the modal
+                modalHeader.appendChild(modalTitle);
+                modalHeader.appendChild(closeButton);
+                modalBody.appendChild(modalImage);
+                modalContent.appendChild(modalHeader);
+                modalContent.appendChild(modalBody);
+                modal.appendChild(modalContent);
+
+                // Add to document
+                document.body.appendChild(modal);
+
+                // Add event listeners
+                closeButton.addEventListener('click', closeModal);
+                modal.addEventListener('click', function(event) {
+                    if (event.target === modal) {
+                        closeModal();
+                    }
+                });
+
+                // Add keyboard support (ESC to close)
+                document.addEventListener('keydown', function(event) {
+                    if (event.key === 'Escape' && modal.classList.contains('show')) {
+                        closeModal();
+                    }
+                });
+            }
+
+            // Set up links for clickable graphs
+            function setupGraphLinks() {
+                const graphLinks = document.querySelectorAll('.graph-link');
+
+                graphLinks.forEach(link => {
+                    link.addEventListener('click', function(event) {
+                        event.preventDefault();
+
+                        const imgSrc = this.getAttribute('href');
+                        const imgTitle = this.getAttribute('data-title');
+
+                        openModal(imgSrc, imgTitle);
+                    });
+                });
+            }
+
+            // Open modal with specified image
+            function openModal(imgSrc, title) {
+                const modal = document.getElementById('graph-modal');
+                const modalImg = document.getElementById('modal-image');
+                const modalTitle = document.getElementById('modal-title');
+
+                modalImg.src = imgSrc;
+                modalTitle.textContent = title || 'Graph View';
+
+                modal.classList.add('show');
+
+                // Prevent body scrolling when modal is open
+                document.body.style.overflow = 'hidden';
+            }
+
+            // Close the modal
+            function closeModal() {
+                const modal = document.getElementById('graph-modal');
+                modal.classList.remove('show');
+
+                // Re-enable body scrolling
+                document.body.style.overflow = '';
+
+                // Clear image src after transition
+                setTimeout(() => {
+                    document.getElementById('modal-image').src = '';
+                }, 300);
+            }
+        });
+    </script>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo-wrapper">
+                <img src="{{ logo_path }}" alt="GitHub Activity Tracker Logo" class="report-logo">
+                <h1>GitHub Activity Report</h1>
+            </div>
+            <p>Analysis of GitHub activities from {{ start_date }} to {{ end_date }}</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <section class="section">
+            <div class="section-header">
+                <i class="fas fa-info-circle"></i>
+                <h2>Summary</h2>
+            </div>
+            <div class="section-body">
+                <div class="stats">
+                    <div class="stat-card">
+                        <h3><i class="fas fa-code-commit"></i> Total Activities</h3>
+                        <div class="stat-value">{{ total_activities }}</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3><i class="fas fa-users"></i> Users</h3>
+                        <div class="stat-value">{{ users }}</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3><i class="fas fa-code-branch"></i> Repositories</h3>
+                        <div class="stat-value">{{ repos }}</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-header">
+                <i class="fas fa-chart-bar"></i>
+                <h2>Activity Insights</h2>
+            </div>
+            <div class="section-body">
+                <div class="graphs">
+                    <div class="graph-container">
+                        <div class="graph-header">
+                            <h3><i class="fas fa-chart-line"></i> Activity Trends</h3>
+                        </div>
+                        <div class="graph-body">
+                            <a href="{{ trends }}" class="graph-link" data-title="Daily GitHub Activity">
+                                <img src="{{ trends }}" alt="Activity Trends" class="clickable-graph">
+                                <div class="graph-overlay">
+                                    <i class="fas fa-search-plus"></i> Click to enlarge
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="graph-container">
+                        <div class="graph-header">
+                            <h3><i class="fas fa-chart-pie"></i> Activity Types</h3>
+                        </div>
+                        <div class="graph-body">
+                            <a href="{{ types }}" class="graph-link" data-title="GitHub Activity Types">
+                                <img src="{{ types }}" alt="Activity Types" class="clickable-graph">
+                                <div class="graph-overlay">
+                                    <i class="fas fa-search-plus"></i> Click to enlarge
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="graph-container">
+                        <div class="graph-header">
+                            <h3><i class="fas fa-users"></i> User Comparison</h3>
+                        </div>
+                        <div class="graph-body">
+                            <a href="{{ user_comparison }}" class="graph-link" data-title="User Activity Comparison">
+                                <img src="{{ user_comparison }}" alt="User Comparison" class="clickable-graph">
+                                <div class="graph-overlay">
+                                    <i class="fas fa-search-plus"></i> Click to enlarge
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-header">
+                <i class="fas fa-list-ul"></i>
+                <h2>Activity Details</h2>
+            </div>
+            <div class="section-body">
+                <div class="filter-container">
+                    <div class="filter-header">
+                        <h3><i class="fas fa-filter"></i> Filter Activities</h3>
+                    </div>
+                    <div class="filter-body">
+                        <div class="filter-row">
+                            <div class="filter-group">
+                                <label for="user-filter">User</label>
+                                <select id="user-filter"></select>
+                            </div>
+                            <div class="filter-group">
+                                <label for="type-filter">Activity Type</label>
+                                <select id="type-filter"></select>
+                            </div>
+                            <div class="filter-group">
+                                <label for="state-filter">PR State</label>
+                                <select id="state-filter"></select>
+                            </div>
+                            <div class="filter-group">
+                                <label for="repo-filter">Repository</label>
+                                <select id="repo-filter"></select>
+                            </div>
+                        </div>
+                        <div class="filter-row">
+                            <div class="filter-group">
+                                <label for="date-start">From Date</label>
+                                <input type="date" id="date-start">
+                            </div>
+                            <div class="filter-group">
+                                <label for="date-end">To Date</label>
+                                <input type="date" id="date-end">
+                            </div>
+                            <div class="filter-group">
+                                <label for="search-filter">Search</label>
+                                <input type="text" id="search-filter" placeholder="Search in all columns...">
+                            </div>
+                        </div>
+                        <div class="filter-buttons">
+                            <button id="filter-button" class="btn btn-primary">
+                                <i class="fas fa-check"></i> Apply Filters
+                            </button>
+                            <button id="clear-button" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Clear Filters
+                            </button>
+                            <button id="column-settings-button" class="btn btn-secondary">
+                                <i class="fas fa-columns"></i> Column Settings
+                            </button>
+                        </div>
+                        <div id="visible-count" class="filter-results"></div>
+                    </div>
+                </div>
+
+                <!-- Column Settings Modal -->
+                <div id="column-modal" class="modal">
+                    <div class="modal-content" style="max-width: 600px; max-height: 90vh; overflow-y: auto;">
+                        <div class="modal-header">
+                            <h2 class="modal-title">Column Settings</h2>
+                            <button class="modal-close" aria-label="Close">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="column-settings">
+                                <h3>Column Visibility</h3>
+                                <div id="column-toggles" class="column-toggles"></div>
+
+                                <h3 style="margin-top: 20px;">Column Width</h3>
+                                <div id="column-widths" class="column-widths"></div>
+
+                                <h3 style="margin-top: 20px;">Column Order</h3>
+                                <p>Drag and drop to rearrange columns:</p>
+                                <div id="column-order" class="column-order"></div>
+
+                                <div style="margin-top: 20px; margin-bottom: 20px; text-align: right;">
+                                    <button id="reset-columns" class="btn btn-secondary">
+                                        <i class="fas fa-undo"></i> Reset to Default
+                                    </button>
+                                    <button id="apply-column-settings" class="btn btn-primary">
+                                        <i class="fas fa-check"></i> Apply Settings
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    {{ table_html }}
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="container">
+                <p>Generated on {{ generation_date }} • <i class="fas fa-code-branch"></i> GitHub Activity Tracker</p>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

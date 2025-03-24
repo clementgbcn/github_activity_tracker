@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+
+{% block title %}Thread Monitor{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Job Thread Monitor</h1>
+    <p class="text-muted">This page shows the status of background job threads for debugging purposes.</p>
+
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Registered Job Threads</h4>
+        </div>
+        <div class="card-body">
+            {% if active_threads %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Job ID</th>
+                                <th>Thread Name</th>
+                                <th>Thread ID</th>
+                                <th>Is Alive</th>
+                                <th>Is Daemon</th>
+                                <th>Job Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for thread in active_threads %}
+                                <tr>
+                                    <td>
+                                        <a href="{{ url_for('job_status', job_id=thread.job_id) }}">
+                                            {{ thread.job_id }}
+                                        </a>
+                                    </td>
+                                    <td>{{ thread.thread_name }}</td>
+                                    <td>{{ thread.thread_id }}</td>
+                                    <td>
+                                        {% if thread.is_alive %}
+                                            <span class="badge bg-success">Active</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Dead</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if thread.is_daemon %}
+                                            <span class="badge bg-warning">Daemon</span>
+                                        {% else %}
+                                            <span class="badge bg-info">Non-Daemon</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if job_data is mapping and thread.job_id in job_data %}
+                                            {{ job_data[thread.job_id].status }}
+                                            {% if job_data[thread.job_id].current_user %}
+                                                (Processing: {{ job_data[thread.job_id].current_user }})
+                                            {% endif %}
+                                            <br>
+                                            <small>{{ job_data[thread.job_id].processed_users }} / {{ job_data[thread.job_id].total_users }} users</small>
+                                        {% else %}
+                                            <span class="text-muted">Unknown</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    No registered job threads found.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header bg-secondary text-white">
+            <h4 class="mb-0">All Job-Related Threads</h4>
+        </div>
+        <div class="card-body">
+            {% if all_threads %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Thread Name</th>
+                                <th>Thread ID</th>
+                                <th>Is Alive</th>
+                                <th>Is Daemon</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for thread in all_threads %}
+                                <tr>
+                                    <td>{{ thread.thread_name }}</td>
+                                    <td>{{ thread.thread_id }}</td>
+                                    <td>
+                                        {% if thread.is_alive %}
+                                            <span class="badge bg-success">Active</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Dead</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if thread.is_daemon %}
+                                            <span class="badge bg-warning">Daemon</span>
+                                        {% else %}
+                                            <span class="badge bg-info">Non-Daemon</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    No job-related threads found.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header bg-dark text-white">
+            <h4 class="mb-0">Job Data</h4>
+        </div>
+        <div class="card-body">
+            {% if job_data %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Job ID</th>
+                                <th>Status</th>
+                                <th>Current User</th>
+                                <th>Progress</th>
+                                <th>Errors</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if job_data is mapping %}
+                                {% for job_id, job in job_data.items() %}
+                                    <tr>
+                                        <td>
+                                            <a href="{{ url_for('job_status', job_id=job_id) }}">
+                                                {{ job_id }}
+                                            </a>
+                                        </td>
+                                        <td>{{ job.status }}</td>
+                                        <td>{{ job.current_user or 'None' }}</td>
+                                        <td>{{ job.processed_users }} / {{ job.total_users }}</td>
+                                        <td>
+                                            {% if job.errors %}
+                                                <ul class="text-danger mb-0 ps-3">
+                                                    {% for error in job.errors[:3] %}
+                                                        <li>{{ error }}</li>
+                                                    {% endfor %}
+                                                    {% if job.errors|length > 3 %}
+                                                        <li>... and {{ job.errors|length - 3 }} more errors</li>
+                                                    {% endif %}
+                                                </ul>
+                                            {% else %}
+                                                <span class="text-success">No errors</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-danger">
+                                        Invalid job data format. Expected dictionary, got {{ job_data.__class__.__name__ }}.
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    No job data found.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <a href="{{ url_for('index') }}" class="btn btn-primary">Back to Home</a>
+        <a href="{{ url_for('list_jobs') }}" class="btn btn-secondary">View All Jobs</a>
+        <button class="btn btn-info" onclick="window.location.reload()">Refresh Data</button>
+    </div>
+</div>
+{% endblock %}

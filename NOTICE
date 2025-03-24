@@ -1,0 +1,19 @@
+GitHub Activity Tracker
+Copyright (c) 2025 GitHub Activity Tracker
+
+This software is licensed under the MIT License.
+
+This software includes and/or depends on the following third-party open-source software:
+
+- PyGithub (MIT License) - https://github.com/PyGithub/PyGithub
+- pandas (BSD 3-Clause License) - https://github.com/pandas-dev/pandas
+- matplotlib (Matplotlib License, based on PSF) - https://github.com/matplotlib/matplotlib
+- python-dotenv (BSD 3-Clause License) - https://github.com/theskumar/python-dotenv
+- Jinja2 (BSD 3-Clause License) - https://github.com/pallets/jinja
+- colorlog (MIT License) - https://github.com/borntyping/python-colorlog
+- WeasyPrint (BSD 3-Clause License) - https://github.com/Kozea/WeasyPrint
+- FPDF2 (LGPLv3 License) - https://github.com/pyfpdf/fpdf2
+
+The full text of these licenses can be found in the respective project repositories.
+
+The GitHub Activity Tracker is not endorsed by or affiliated with GitHub, Inc.

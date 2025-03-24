@@ -1,0 +1,354 @@
+{% extends 'base.html' %}
+
+{% block title %}GitHub Activity Tracker - Results{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div>
+                    <i class="fas fa-chart-bar me-2"></i>
+                    <span>Job Results</span>
+                </div>
+                <span class="status-badge status-completed">
+                    <i class="fas fa-check-circle me-1"></i> Completed
+                </span>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h5 class="card-title">Job Information</h5>
+                        <table class="table table-sm">
+                            <tr>
+                                <th>Job ID:</th>
+                                <td><code>{{ job_id }}</code></td>
+                            </tr>
+                            <tr>
+                                <th>Start Time:</th>
+                                <td>{{ job.start_time | format_datetime }}</td>
+                            </tr>
+                            <tr>
+                                <th>End Time:</th>
+                                <td>{{ job.end_time | format_datetime }}</td>
+                            </tr>
+                            <tr>
+                                <th>Duration:</th>
+                                <td>{{ job.start_time | format_duration(job.end_time) }}</td>
+                            </tr>
+                            <tr>
+                                <th>Organization:</th>
+                                <td>{{ job.parameters.org or 'All organizations' }}</td>
+                            </tr>
+                            <tr>
+                                <th>Date Range:</th>
+                                <td>{{ job.parameters.date_from }} to {{ job.parameters.date_to }}</td>
+                            </tr>
+                            <tr>
+                                <th>Output Format:</th>
+                                <td>{{ job.parameters.output_format | upper }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h5 class="card-title">Summary</h5>
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <div class="d-flex align-items-center">
+                                            <div class="me-3 fs-3 text-primary">
+                                                <i class="fas fa-user-friends"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fs-5 fw-bold">{{ job.parameters.users | length }}</div>
+                                                <div class="text-muted">Users</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <div class="d-flex align-items-center">
+                                            <div class="me-3 fs-3 text-success">
+                                                <i class="fas fa-code-branch"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fs-5 fw-bold">{{ job.activities | length }}</div>
+                                                <div class="text-muted">Activities</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-primary text-white">
+                                <i class="fas fa-file-download me-2"></i>
+                                <span>Available Files</span>
+                            </div>
+                            <div class="card-body p-0">
+                                {% set report_path = job.report_path %}
+                                {% if job.parameters.output_format == 'html' %}
+                                    <!-- Grid layout for HTML report files -->
+                                    <div class="row g-0">
+                                        <!-- HTML Report -->
+                                        <div class="col-lg-6 col-md-6">
+                                            <div class="file-card p-3 border-bottom border-end">
+                                                <div class="d-flex align-items-start">
+                                                    <div class="file-icon bg-light rounded p-3 text-primary">
+                                                        <i class="fas fa-file-code fa-2x"></i>
+                                                    </div>
+                                                    <div class="ms-3">
+                                                        <h6 class="mb-1">HTML Report</h6>
+                                                        <p class="text-muted small mb-2">Interactive report with filtering</p>
+                                                        <div class="btn-group btn-group-sm">
+                                                            <a href="{{ url_for('view_file', job_id=job_id, filename='index.html') }}"
+                                                               class="btn btn-outline-primary"
+                                                               target="_blank">
+                                                                <i class="fas fa-eye me-1"></i> View
+                                                            </a>
+                                                            <a href="{{ url_for('download_file', job_id=job_id, filename='index.html') }}"
+                                                               class="btn btn-outline-success">
+                                                                <i class="fas fa-download me-1"></i> Download
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- PDF Report -->
+                                        <div class="col-lg-6 col-md-6">
+                                            <div class="file-card p-3 border-bottom">
+                                                <div class="d-flex align-items-start">
+                                                    {% set pdf_path = job.report_path + '/github_activity_report.pdf' %}
+                                                    {% if pdf_path|file_exists %}
+                                                        <div class="file-icon bg-light rounded p-3 text-danger">
+                                                            <i class="fas fa-file-pdf fa-2x"></i>
+                                                        </div>
+                                                        <div class="ms-3">
+                                                            <h6 class="mb-1">PDF Report</h6>
+                                                            <p class="text-muted small mb-2">Printable version (landscape)</p>
+                                                            <div class="btn-group btn-group-sm">
+                                                                <a href="{{ url_for('view_file', job_id=job_id, filename='github_activity_report.pdf') }}"
+                                                                   class="btn btn-outline-primary"
+                                                                   target="_blank">
+                                                                    <i class="fas fa-eye me-1"></i> View
+                                                                </a>
+                                                                <a href="{{ url_for('download_file', job_id=job_id, filename='github_activity_report.pdf') }}"
+                                                                   class="btn btn-outline-success">
+                                                                    <i class="fas fa-download me-1"></i> Download
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    {% else %}
+                                                        <div class="file-icon bg-light rounded p-3 text-muted">
+                                                            <i class="fas fa-file-pdf fa-2x"></i>
+                                                        </div>
+                                                        <div class="ms-3">
+                                                            <h6 class="mb-1 text-muted">PDF Report</h6>
+                                                            <p class="text-muted small mb-2">Not available</p>
+                                                            <span class="badge bg-secondary">Requires WeasyPrint</span>
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Visualizations header -->
+                                        <div class="col-12">
+                                            <div class="bg-light p-2 ps-3 border-bottom">
+                                                <strong><i class="fas fa-chart-bar me-2"></i>Visualizations</strong>
+                                            </div>
+                                        </div>
+
+                                        <!-- Activity Trends Chart -->
+                                        <div class="col-lg-4 col-md-6">
+                                            <div class="file-card p-3 border-end border-bottom visualization-card">
+                                                <div class="viz-preview mb-2">
+                                                    <a href="{{ url_for('view_file', job_id=job_id, filename='activity_trends.png') }}" target="_blank">
+                                                        <img src="{{ url_for('view_file', job_id=job_id, filename='activity_trends.png') }}"
+                                                             class="img-fluid rounded" alt="Activity Trends">
+                                                        <div class="preview-overlay">
+                                                            <i class="fas fa-search-plus fa-lg"></i>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                                <h6 class="mb-1">Activity Trends</h6>
+                                                <p class="text-muted small mb-2">Timeline of activities</p>
+                                                <a href="{{ url_for('download_file', job_id=job_id, filename='activity_trends.png') }}"
+                                                   class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-download me-1"></i> Download
+                                                </a>
+                                            </div>
+                                        </div>
+
+                                        <!-- Activity Types Chart -->
+                                        <div class="col-lg-4 col-md-6">
+                                            <div class="file-card p-3 border-end border-bottom visualization-card">
+                                                <div class="viz-preview mb-2">
+                                                    <a href="{{ url_for('view_file', job_id=job_id, filename='activity_types.png') }}" target="_blank">
+                                                        <img src="{{ url_for('view_file', job_id=job_id, filename='activity_types.png') }}"
+                                                             class="img-fluid rounded" alt="Activity Types">
+                                                        <div class="preview-overlay">
+                                                            <i class="fas fa-search-plus fa-lg"></i>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                                <h6 class="mb-1">Activity Types</h6>
+                                                <p class="text-muted small mb-2">Distribution by type</p>
+                                                <a href="{{ url_for('download_file', job_id=job_id, filename='activity_types.png') }}"
+                                                   class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-download me-1"></i> Download
+                                                </a>
+                                            </div>
+                                        </div>
+
+                                        <!-- User Comparison Chart -->
+                                        <div class="col-lg-4 col-md-6">
+                                            <div class="file-card p-3 border-bottom visualization-card">
+                                                <div class="viz-preview mb-2">
+                                                    <a href="{{ url_for('view_file', job_id=job_id, filename='user_comparison.png') }}" target="_blank">
+                                                        <img src="{{ url_for('view_file', job_id=job_id, filename='user_comparison.png') }}"
+                                                             class="img-fluid rounded" alt="User Comparison">
+                                                        <div class="preview-overlay">
+                                                            <i class="fas fa-search-plus fa-lg"></i>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                                <h6 class="mb-1">User Comparison</h6>
+                                                <p class="text-muted small mb-2">Activity by user</p>
+                                                <a href="{{ url_for('download_file', job_id=job_id, filename='user_comparison.png') }}"
+                                                   class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-download me-1"></i> Download
+                                                </a>
+                                            </div>
+                                        </div>
+
+                                        <!-- Download all button -->
+                                        <div class="col-12">
+                                            <div class="p-3 text-center">
+                                                <button class="btn btn-primary" onclick="window.alert('Feature coming soon: Download all files as ZIP')">
+                                                    <i class="fas fa-download me-1"></i> Download All Files
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    <!-- CSV report file -->
+                                    <div class="p-4 text-center">
+                                        {% set csv_files = job.report_path | string %}
+                                        {% if '/' in csv_files %}
+                                            {% set csv_filename = csv_files.split('/')[-1] %}
+                                        {% else %}
+                                            {% set csv_filename = csv_files %}
+                                        {% endif %}
+
+                                        <div class="mb-4">
+                                            <i class="fas fa-file-csv fa-5x text-success mb-3"></i>
+                                            <h5>CSV Report</h5>
+                                            <p class="text-muted">Raw data for custom analysis</p>
+                                        </div>
+
+                                        <a href="{{ url_for('download_file', job_id=job_id, filename=csv_filename) }}"
+                                           class="btn btn-lg btn-success">
+                                            <i class="fas fa-download me-2"></i> Download CSV
+                                        </a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add styles for the visualization cards -->
+                <style>
+                    .visualization-card .viz-preview {
+                        position: relative;
+                        height: 150px;
+                        overflow: hidden;
+                        border-radius: 6px;
+                        border: 1px solid #e1e4e8;
+                    }
+
+                    .visualization-card .viz-preview img {
+                        width: 100%;
+                        height: 100%;
+                        object-fit: cover;
+                        transition: transform 0.3s ease;
+                    }
+
+                    .visualization-card .preview-overlay {
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background-color: rgba(0, 0, 0, 0.5);
+                        color: white;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        opacity: 0;
+                        transition: opacity 0.3s ease;
+                    }
+
+                    .visualization-card .viz-preview:hover .preview-overlay {
+                        opacity: 1;
+                    }
+
+                    .visualization-card .viz-preview:hover img {
+                        transform: scale(1.05);
+                    }
+
+                    .file-icon {
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        width: 60px;
+                        height: 60px;
+                    }
+
+                    @media (max-width: 992px) {
+                        .file-card {
+                            border-right: none !important;
+                        }
+                    }
+                </style>
+
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                        <a href="{{ url_for('index') }}" class="btn btn-primary me-2">
+                            <i class="fas fa-home me-1"></i> Home
+                        </a>
+                        <a href="{{ url_for('list_jobs') }}" class="btn btn-secondary">
+                            <i class="fas fa-tasks me-1"></i> All Jobs
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if job.parameters.output_format == 'html' %}
+        <div class="card mt-4">
+            <div class="card-header">
+                <i class="fas fa-eye me-2"></i>
+                <span>Report Preview</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="ratio ratio-16x9" style="min-height: 600px;">
+                    <iframe src="{{ url_for('view_file', job_id=job_id, filename='index.html') }}"
+                            title="GitHub Activity Report"
+                            allowfullscreen
+                            sandbox="allow-same-origin allow-scripts allow-popups"></iframe>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

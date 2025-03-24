@@ -1,0 +1,20 @@
+PyGithub==2.1.1
+pandas==2.1.1
+matplotlib==3.8.0
+python-dotenv==1.0.0
+jinja2==3.1.2
+colorlog==6.8.2
+pydyf==0.10.0
+WeasyPrint==60.2
+Flask==2.3.3
+Werkzeug==2.3.7
+Flask-Session==0.5.0
+itsdangerous==2.1.2
+json-log-formatter==1.1.1
+Pillow>=9.1.0
+bcrypt==4.0.1
+
+# Note: WeasyPrint requires system dependencies for PDF generation
+# On Ubuntu/Debian: sudo apt-get install build-essential python3-dev python3-pip python3-cffi libcairo2 libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf2.0-0 libffi-dev shared-mime-info
+# On macOS: brew install cairo pango gdk-pixbuf libffi
+# On Windows: See https://doc.courtbouillon.org/weasyprint/stable/first_steps.html#windows

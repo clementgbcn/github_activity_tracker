@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block title %}GitHub Activity Tracker - Add User{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-user-plus me-2"></i>
+                <span>Add New User</span>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('auth.admin_add_user') }}">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="username" class="form-label">Username <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-user"></i>
+                                    </span>
+                                    <input type="text" class="form-control" id="username" name="username" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email (Optional)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-envelope"></i>
+                                    </span>
+                                    <input type="email" class="form-control" id="email" name="email">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="fas fa-lock"></i>
+                            </span>
+                            <input type="password" class="form-control" id="password" name="password" required minlength="8">
+                            <button class="btn btn-outline-secondary" type="button" id="generatePasswordBtn">
+                                <i class="fas fa-random"></i> Generate
+                            </button>
+                        </div>
+                        <div class="form-text">Password must be at least 8 characters long</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="is_admin" name="is_admin">
+                            <label class="form-check-label" for="is_admin">
+                                Administrator Access
+                            </label>
+                            <div class="form-text">
+                                Admin users can manage other users and access all features
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('auth.admin_users') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i> Back to Users
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-user-plus me-2"></i> Add User
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Generate random password
+        document.getElementById('generatePasswordBtn').addEventListener('click', function() {
+            // Generate a random password (12 characters)
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()';
+            let password = '';
+            for (let i = 0; i < 12; i++) {
+                password += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+
+            document.getElementById('password').value = password;
+
+            // Show the password briefly
+            const passwordField = document.getElementById('password');
+            passwordField.type = 'text';
+            setTimeout(() => {
+                passwordField.type = 'password';
+            }, 3000);
+        });
+    });
+</script>
+{% endblock %}
