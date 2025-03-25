@@ -10,7 +10,7 @@ import pathlib
 import re
 import shutil
 import smtplib
-from datetime import datetime
+from datetime import datetime, timedelta
 from email.mime.application import MIMEApplication
 from email.mime.base import MIMEBase
 from email.mime.image import MIMEImage
@@ -122,7 +122,7 @@ class EmailSender:
 
             # Get current date if not provided
             if not date_from or not date_to:
-                date_from = (datetime.now() - datetime.timedelta(days=30)).strftime("%Y-%m-%d")
+                date_from = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
                 date_to = datetime.now().strftime("%Y-%m-%d")
 
             # Start with report path validation
@@ -618,7 +618,7 @@ The full report is attached to this email.
 
         # Guess the date range - for simplicity, assume it's the last 30 days
         end_date = datetime.now()
-        start_date = end_date - datetime.timedelta(days=30)
+        start_date = end_date - timedelta(days=30)
 
         # Create HTML content
         html_content = f"""<!DOCTYPE html>

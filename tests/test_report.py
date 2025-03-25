@@ -87,7 +87,12 @@ def test_plot_activity_types(mock_close, mock_savefig, sample_data, tmp_path):
 
 
 @patch("github_activity_tracker.report.generator.ActivityVisualizer.generate_insights")
-def test_generate_html_report(mock_generate_insights, sample_data, tmp_path):
+@patch("github_activity_tracker.report.generator.shutil.copy2")
+@patch("github_activity_tracker.report.generator.Path.exists", return_value=True)
+@patch("weasyprint.HTML", side_effect=ImportError("Mocked WeasyPrint Import"))
+def test_generate_html_report(
+    mock_html, mock_path_exists, mock_copy2, mock_generate_insights, sample_data, tmp_path
+):
     """Test generating an HTML report."""
     # Mock the insights return value
     mock_insights = {
@@ -105,7 +110,7 @@ def test_generate_html_report(mock_generate_insights, sample_data, tmp_path):
     # Create a template directory for testing
     os.makedirs(str(tmp_path / "templates"), exist_ok=True)
 
-    # Mock jinja2 template loader
+    # Mock jinja2 template loader and other dependencies
     with patch("github_activity_tracker.report.generator.jinja2.FileSystemLoader"), patch(
         "github_activity_tracker.report.generator.jinja2.Environment"
     ), patch(
@@ -122,6 +127,9 @@ def test_generate_html_report(mock_generate_insights, sample_data, tmp_path):
 
         # Verify insights were generated
         mock_generate_insights.assert_called_once()
+
+        # Verify logo copy was attempted
+        mock_copy2.assert_called()
 
         # Verify the returned path
         assert result == str(tmp_path / "index.html")
