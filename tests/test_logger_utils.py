@@ -102,9 +102,7 @@ class TestConfigureGithubRetryLogger(unittest.TestCase):
         mock_logger = Mock(spec=logging.Logger)
 
         # Call the function - it should handle the exception
-        with patch(
-            "github_activity_tracker.utils.logger_utils.LevelOffsetLogger"
-        ) as mock_level_logger:
+        with patch("github_activity_tracker.utils.logger_utils.LevelOffsetLogger") as _:
             configure_github_retry_logger(mock_github_retry, mock_logger)
 
             # Verify error was logged

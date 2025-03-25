@@ -40,7 +40,8 @@ def parse_arguments() -> argparse.Namespace:
     )
     user_group.add_argument(
         "--users-file",
-        help=f"Path to a file containing GitHub usernames (one per line, defaults to {DEFAULT_USERS_FILE})",
+        help=f"Path to a file containing GitHub usernames "
+        f"(one per line, defaults to {DEFAULT_USERS_FILE})",
     )
 
     # Date range
@@ -135,7 +136,7 @@ def track_user_wrapper(
     return tracker.track_user_activities(username, start_date, end_date)
 
 
-def main() -> None:
+def main() -> None:  # noqa: C901
     """Main entry point for the application.
 
     This function orchestrates the entire GitHub Activity Tracker workflow:
@@ -216,7 +217,8 @@ def main() -> None:
                 logger.error(f"Default users file '{DEFAULT_USERS_FILE}' not found.")
                 logger.error("Please create this file with GitHub usernames (one per line)")
                 logger.error(
-                    "Or specify users via --users, --users-file, or GITHUB_USERS environment variable."
+                    "Or specify users via --users, --users-file, "
+                    "or GITHUB_USERS environment variable."
                 )
                 sys.exit(1)
 
@@ -268,7 +270,7 @@ def main() -> None:
     rate_check_interval = args.rate_check_interval
 
     # Initialize main tracker (this one will monitor rate limits if enabled)
-    tracker = GitHubActivityTracker(
+    _ = GitHubActivityTracker(
         github_token,
         org,
         monitor_rate_limit=monitor_rate_limit,
@@ -326,7 +328,8 @@ def main() -> None:
     for i, user_activities in enumerate(results):
         if user_activities:
             logger.debug(
-                f"Adding {len(user_activities)} activities from user '{users[i]}' to the combined results"
+                f"Adding {len(user_activities)} activities "
+                f"from user '{users[i]}' to the combined results"
             )
             all_activities.extend(user_activities)
         else:
@@ -341,7 +344,8 @@ def main() -> None:
     if args.output in ["csv", "html"]:
         if not all_activities:
             logger.warning(
-                f"No activities found for the specified users and date range. No {args.output} report will be generated."
+                f"No activities found for the specified users and date range. "
+                f"No {args.output} report will be generated."
             )
         else:
             logger.debug(f"Generating {args.output} report for {len(all_activities)} activities")

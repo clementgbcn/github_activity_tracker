@@ -51,7 +51,7 @@ def _ensure_jobs_file() -> None:
             logger.error(f"Failed to create jobs data file: {e}")
 
 
-def _load_jobs_internal() -> Dict[str, Any]:
+def _load_jobs_internal() -> Dict[str, Any]:  # noqa: C901
     """Internal function to load job data without acquiring the lock.
 
     Returns:
@@ -170,7 +170,7 @@ def get_job(job_id: str) -> Optional[Dict[str, Any]]:
         return jobs.get(job_id)
 
 
-def _save_jobs_internal(jobs_data: Dict[str, Any]) -> bool:
+def _save_jobs_internal(jobs_data: Dict[str, Any]) -> bool:  # noqa: C901
     """Internal function to save job data without acquiring the lock.
 
     Args:
@@ -247,7 +247,7 @@ def _save_jobs_internal(jobs_data: Dict[str, Any]) -> bool:
             try:
                 # On non-Windows systems we can use atomic rename
                 os.replace(temp_file, JOBS_DATA_FILE)
-            except:
+            except Exception as _:
                 # Fall back to non-atomic replace, with backup
                 backup_file = JOBS_DATA_FILE + ".bak"
                 if os.path.exists(JOBS_DATA_FILE):
@@ -267,7 +267,7 @@ def _save_jobs_internal(jobs_data: Dict[str, Any]) -> bool:
             if os.path.exists(temp_file):
                 try:
                     os.remove(temp_file)
-                except:
+                except Exception as _:
                     pass
             return False
     except Exception as e:
@@ -364,7 +364,7 @@ def delete_job(job_id: str) -> bool:
             return False
 
 
-def clean_old_jobs(max_age_days: int = 30) -> int:
+def clean_old_jobs(max_age_days: int = 30) -> int:  # noqa: C901
     """Remove jobs older than specified number of days.
 
     Args:
@@ -480,7 +480,7 @@ def clean_old_jobs(max_age_days: int = 30) -> int:
                 logger.error("Error releasing lock in clean_old_jobs")
 
 
-def debug_jobs_file():
+def debug_jobs_file():  # noqa: C901
     """Print debug information about the jobs file.
 
     This function is for debugging purposes only.

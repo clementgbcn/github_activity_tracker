@@ -36,7 +36,7 @@ def load_users_from_file(file_path):
         return None
 
 
-def create_report_directory(parent_dir=""):
+def create_report_directory(parent_dir=""):  # noqa: C901
     """
     Create a new directory for the report with timestamp.
 

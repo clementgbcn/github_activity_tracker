@@ -98,7 +98,7 @@ class UserManager:
             self.users = {user["user_id"]: user for user in data["users"]}
 
             # Check if any users have plaintext passwords
-            for user_id, user_data in self.users.items():
+            for _, user_data in self.users.items():
                 # If 'password' exists but 'password_hash' doesn't, we need migration
                 if "password" in user_data and "password_hash" not in user_data:
                     self.needs_migration = True
@@ -144,7 +144,7 @@ class UserManager:
         """Migrate plaintext passwords to secure hashed passwords."""
         migration_count = 0
 
-        for user_id, user_data in self.users.items():
+        for _, user_data in self.users.items():
             # Skip users that already have password_hash
             if "password_hash" in user_data:
                 continue
@@ -210,7 +210,7 @@ class UserManager:
         """
         # Find user by username
         user_data = None
-        for uid, data in self.users.items():
+        for _, data in self.users.items():
             if data.get("username") == username:
                 user_data = data
                 break

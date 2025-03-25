@@ -64,7 +64,7 @@ class EmailSender:
         self.default_sender = default_sender or username
         logger.debug(f"EmailSender initialized with server: {smtp_server}:{smtp_port}")
 
-    def send_report(
+    def send_report(  # noqa: C901
         self,
         recipient: str,
         subject: str = "GitHub Activity Report",
@@ -181,7 +181,7 @@ class EmailSender:
 
             # Add any embedded images
             if format_name.lower() == "html" and "embedded_images" in locals():
-                for cid, (img_path, mimetype) in embedded_images.items():
+                for cid, (img_path, _) in embedded_images.items():
                     with open(img_path, "rb") as img:
                         img_data = img.read()
                         image = MIMEImage(img_data)
@@ -285,7 +285,7 @@ EXECUTIVE SUMMARY:
 This report tracks GitHub activity across {stats.get("Repositories", "?")} repositories by {stats.get("Users", "?")} users, with a total of {stats.get("Total Activities", "?")} activities recorded.
 
 The full report is attached to this email.
-"""
+"""  # noqa: E501
 
         # Prepare attachments
         attachments = []
@@ -408,7 +408,11 @@ The full report is attached to this email.
                 logger.debug(f"Found logo: {logo_path}")
 
                 # Create the HTML for the logo
-                logo_html = f'<div style="text-align: center; margin-bottom: 20px;"><img src="cid:{logo_cid}" alt="Logo" style="max-width: 200px; max-height: 100px;"></div>'
+                logo_html = (
+                    f'<div style="text-align: center; margin-bottom: 20px;">'
+                    f'<img src="cid:{logo_cid}" alt="Logo" '
+                    f'style="max-width: 200px; max-height: 100px;"></div>'
+                )
                 break
 
         if logo_cid is None:
@@ -443,7 +447,7 @@ The full report is attached to this email.
         </div>
     </body>
     </html>
-        """
+        """  # noqa: E501
 
         logger.debug(f"Embedded {len(embedded_images)} images in the email")
         return simplified_html, embedded_images
@@ -550,7 +554,7 @@ The full report is attached to this email.
                         -webkit-print-color-adjust: exact;
                         color-adjust: exact;
                     }
-                """,
+                """,  # noqa: E501
                     font_config=font_config,
                 )
 
@@ -647,7 +651,7 @@ The full report is attached to this email.
         </div>
     </body>
 </html>
-        """
+        """  # noqa: E501
 
         # Create text content
         text_content = f"""GitHub Activity Report

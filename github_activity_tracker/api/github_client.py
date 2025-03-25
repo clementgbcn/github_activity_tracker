@@ -109,40 +109,51 @@ class GitHubActivityTracker:
                 f"({core_remaining_percent:.1f}% remaining)"
             )
             logger.debug(
-                f"Core rate limit resets in {core_reset_minutes:.1f} minutes (at {core_reset_time.strftime('%H:%M:%S')})"
+                f"Core rate limit resets in {core_reset_minutes:.1f} "
+                f"minutes (at {core_reset_time.strftime('%H:%M:%S')})"
             )
 
             logger.debug(
-                f"Rate Limit Status - Search: {search_limit.remaining}/{search_limit.limit} "
+                f"Rate Limit Status - Search: "
+                f"{search_limit.remaining}/{search_limit.limit} "
                 f"({search_remaining_percent:.1f}% remaining)"
             )
             logger.debug(
-                f"Search rate limit resets in {search_reset_minutes:.1f} minutes (at {search_reset_time.strftime('%H:%M:%S')})"
+                f"Search rate limit resets in {search_reset_minutes:.1f} "
+                f"minutes (at {search_reset_time.strftime('%H:%M:%S')})"
             )
 
             # Check if we're running low on rate limit and log a warning
             if core_remaining_percent < 20:
                 if core_remaining_percent < 5:
                     logger.warning(
-                        f"🚨 CRITICAL: Core API rate limit almost depleted: {core_limit.remaining}/{core_limit.limit}. "
-                        f"Resets at {core_reset_time.strftime('%H:%M:%S')} ({core_reset_minutes:.1f} minutes)"
+                        f"🚨 CRITICAL: Core API rate limit almost depleted: "
+                        f"{core_limit.remaining}/{core_limit.limit}. "
+                        f"Resets at {core_reset_time.strftime('%H:%M:%S')} "
+                        f"({core_reset_minutes:.1f} minutes)"
                     )
                 else:
                     logger.warning(
-                        f"⚠️ Core API rate limit running low: {core_limit.remaining}/{core_limit.limit}. "
-                        f"Resets at {core_reset_time.strftime('%H:%M:%S')} ({core_reset_minutes:.1f} minutes)"
+                        f"⚠️ Core API rate limit running low: "
+                        f"{core_limit.remaining}/{core_limit.limit}. "
+                        f"Resets at {core_reset_time.strftime('%H:%M:%S')} "
+                        f"({core_reset_minutes:.1f} minutes)"
                     )
 
             if search_remaining_percent < 20:
                 if search_remaining_percent < 5:
                     logger.warning(
-                        f"🚨 CRITICAL: Search API rate limit almost depleted: {search_limit.remaining}/{search_limit.limit}. "
-                        f"Resets at {search_reset_time.strftime('%H:%M:%S')} ({search_reset_minutes:.1f} minutes)"
+                        f"🚨 CRITICAL: Search API rate limit almost depleted: "
+                        f"{search_limit.remaining}/{search_limit.limit}. "
+                        f"Resets at {search_reset_time.strftime('%H:%M:%S')} "
+                        f"({search_reset_minutes:.1f} minutes)"
                     )
                 else:
                     logger.warning(
-                        f"⚠️ Search API rate limit running low: {search_limit.remaining}/{search_limit.limit}. "
-                        f"Resets at {search_reset_time.strftime('%H:%M:%S')} ({search_reset_minutes:.1f} minutes)"
+                        f"⚠️ Search API rate limit running low: "
+                        f"{search_limit.remaining}/{search_limit.limit}. "
+                        f"Resets at {search_reset_time.strftime('%H:%M:%S')} "
+                        f"({search_reset_minutes:.1f} minutes)"
                     )
 
             return True
@@ -190,7 +201,7 @@ class GitHubActivityTracker:
             f"Rate limit monitoring thread started (check interval: {check_interval} seconds)"
         )
 
-    def track_user_activities(
+    def track_user_activities(  # noqa: C901
         self, username: str, start_date: datetime, end_date: datetime
     ) -> List[Dict[str, Any]]:
         """Track activities for a specific user within the given date range.
@@ -215,17 +226,20 @@ class GitHubActivityTracker:
 
             # Log the date range we're searching
             logger.debug(
-                f"📅 Date range: {start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}"
+                f"📅 Date range: {start_date.strftime('%Y-%m-%d')}"
+                f" to {end_date.strftime('%Y-%m-%d')}"
             )
             logger.debug(
-                f"🏢 Organization filter: {self.org if self.org else 'None (tracking across all orgs)'}"
+                f"🏢 Organization filter: "
+                f"{self.org if self.org else 'None (tracking across all orgs)'}"
             )
 
             # Fetch user data
             logger.debug(f"👤 Fetching user data for {username}...")
             user = self.github.get_user(username)
             logger.debug(
-                f"👤 User info: Name={user.name}, ID={user.id}, Location={user.location}, Public repos={user.public_repos}"
+                f"👤 User info: Name={user.name}, ID={user.id}, "
+                f"Location={user.location}, Public repos={user.public_repos}"
             )
 
             user_activities = []
@@ -244,7 +258,10 @@ class GitHubActivityTracker:
                 logger.info(f"📥 Fetching pull requests for {username}...")
 
                 # Construct the search query
-                query = f"author:{username} created:{start_date.strftime('%Y-%m-%d')}..{end_date.strftime('%Y-%m-%d')}"
+                query = (
+                    f"author:{username} created:{start_date.strftime('%Y-%m-%d')}.."
+                    f"{end_date.strftime('%Y-%m-%d')}"
+                )
 
                 # Add org filter if specified
                 if self.org:
@@ -272,7 +289,8 @@ class GitHubActivityTracker:
                         # Apply organization filter if needed
                         if not is_in_org(pull.repository.full_name):
                             logger.debug(
-                                f"Skipping PR in repo {pull.repository.full_name} (not in org {self.org})"
+                                f"Skipping PR in repo {pull.repository.full_name} "
+                                f"(not in org {self.org})"
                             )
                             continue
 
@@ -314,14 +332,16 @@ class GitHubActivityTracker:
 
                         # Log details about the pull request
                         logger.debug(
-                            f"Added PR #{pull.number} in {pull.repository.full_name}: {pull.title[:40]}..."
+                            f"Added PR #{pull.number} in "
+                            f"{pull.repository.full_name}: {pull.title[:40]}..."
                         )
                         logger.debug(
                             f"PR #{pull.number}: Successfully processed and added to activities"
                         )
 
                     logger.info(
-                        f"Processed {pulls_count} PRs for {username}, added {added_count} to results"
+                        f"Processed {pulls_count} PRs for {username}, "
+                        f"added {added_count} to results"
                     )
 
                 except RateLimitExceededException as e:
@@ -345,7 +365,11 @@ class GitHubActivityTracker:
                 logger.info(f"🔎 Fetching reviews for {username}...")
 
                 # Construct the search query
-                query = f"reviewed-by:{username} updated:{start_date.strftime('%Y-%m-%d')}..{end_date.strftime('%Y-%m-%d')}"
+                query = (
+                    f"reviewed-by:{username} "
+                    f"updated:{start_date.strftime('%Y-%m-%d')}.."
+                    f"{end_date.strftime('%Y-%m-%d')}"
+                )
 
                 # Add org filter if specified
                 if self.org:
@@ -377,7 +401,8 @@ class GitHubActivityTracker:
                         # Apply organization filter if needed
                         if not is_in_org(review_issue.repository.full_name):
                             logger.debug(
-                                f"Skipping review in repo {review_issue.repository.full_name} (not in org {self.org})"
+                                f"Skipping review in repo {review_issue.repository.full_name}"
+                                f" (not in org {self.org})"
                             )
                             continue
 
@@ -395,10 +420,12 @@ class GitHubActivityTracker:
                             f"Review for PR #{review_issue.number}: State: {review_issue.state}"
                         )
                         logger.debug(
-                            f"Review for PR #{review_issue.number}: Updated: {review_issue.updated_at}"
+                            f"Review for PR #{review_issue.number}: "
+                            f"Updated: {review_issue.updated_at}"
                         )
                         logger.debug(
-                            f"Review for PR #{review_issue.number}: Repository: {review_issue.repository.full_name}"
+                            f"Review for PR #{review_issue.number}: "
+                            f"Repository: {review_issue.repository.full_name}"
                         )
 
                         # Create activity record
@@ -421,14 +448,17 @@ class GitHubActivityTracker:
 
                         # Log details about the review
                         logger.debug(
-                            f"Added review for PR #{review_issue.number} in {review_issue.repository.full_name}"
+                            f"Added review for PR #{review_issue.number} "
+                            f"in {review_issue.repository.full_name}"
                         )
                         logger.debug(
-                            f"Review for PR #{review_issue.number}: Successfully processed and added to activities"
+                            f"Review for PR #{review_issue.number}: "
+                            f"Successfully processed and added to activities"
                         )
 
                     logger.info(
-                        f"Processed {reviews_count} reviews for {username}, added {added_count} to results"
+                        f"Processed {reviews_count} reviews for {username}, "
+                        f"added {added_count} to results"
                     )
 
                 except RateLimitExceededException as e:
@@ -449,17 +479,20 @@ class GitHubActivityTracker:
             if user_activities and len(user_activities) > 0:
                 first_activity = user_activities[0]
                 logger.debug(
-                    f"Sample activity for {username}: type={first_activity.get('type')}, date={first_activity.get('date')}, repo={first_activity.get('repo')}"
+                    f"Sample activity for {username}: type={first_activity.get('type')}, "
+                    f"date={first_activity.get('date')}, repo={first_activity.get('repo')}"
                 )
 
             # Update the main activities list with this user's activities
             self.activities.extend(user_activities)
 
             logger.debug(
-                f"Activity tracker instance now has {len(self.activities)} total activities after adding {username}'s activities"
+                f"Activity tracker instance now has {len(self.activities)} "
+                f"total activities after adding {username}'s activities"
             )
             logger.info(
-                f"✅ Completed activity tracking for {username}: found {len(user_activities)} activities"
+                f"✅ Completed activity tracking for {username}: "
+                f"found {len(user_activities)} activities"
             )
 
             # Make a deep copy of the activities to ensure they're properly returned

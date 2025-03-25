@@ -103,7 +103,7 @@ def set_default_users_file(file_path: str):
     default_settings["users_file"] = file_path
 
 
-def create_app():
+def create_app():  # noqa: C901
     """Create and configure the Flask app."""
     # Create and configure app
     app = Flask(__name__)
@@ -135,11 +135,11 @@ def create_app():
                 from datetime import datetime
 
                 value = datetime.fromisoformat(value.replace("Z", "+00:00"))
-            except:
+            except Exception as _:
                 return value
         try:
             return value.strftime("%Y-%m-%d %H:%M:%S")
-        except:
+        except Exception as _:
             return str(value)
 
     @app.template_filter("format_duration")
@@ -154,7 +154,7 @@ def create_app():
                 from datetime import datetime
 
                 start_time = datetime.fromisoformat(start_time.replace("Z", "+00:00"))
-            except:
+            except Exception as _:
                 return "N/A"
 
         if isinstance(end_time, str):
@@ -162,7 +162,7 @@ def create_app():
                 from datetime import datetime
 
                 end_time = datetime.fromisoformat(end_time.replace("Z", "+00:00"))
-            except:
+            except Exception as _:
                 return "N/A"
 
         try:
@@ -178,7 +178,7 @@ def create_app():
             else:
                 hours = seconds / 3600
                 return f"{hours:.1f} hours"
-        except:
+        except Exception as _:
             return "N/A"
 
     # Import auth module
@@ -261,7 +261,7 @@ def create_app():
                     # If we get here, try with the auth module or fallback to None
                     try:
                         g.user = auth.get_user_by_id(user_id)
-                    except:
+                    except Exception as _:
                         logger.warning(f"Could not load user {user_id} with auth module")
                         g.user = None
 
@@ -400,7 +400,7 @@ def create_app():
 
     @app.route("/start-job", methods=["POST"])
     @require_login
-    def start_job():
+    def start_job():  # noqa: C901
         """Start a new job with the provided parameters."""
         # Generate a unique job ID
         job_id = "".join(random.choices(string.ascii_letters + string.digits, k=12))
@@ -718,7 +718,7 @@ def create_app():
 
     @app.route("/report/<job_id>")
     @require_login
-    def view_report(job_id):
+    def view_report(job_id):  # noqa: C901
         """View a job's HTML report."""
         job_data = job_sessions.get(job_id)
         if not job_data:
@@ -819,7 +819,8 @@ def create_app():
                     # Check if the document already has download options section
                     has_download_section = "Download Options" in html_content
 
-                    # Check for PDF file and add a download link if exists and there's no section yet
+                    # Check for PDF file and add a download link if exists
+                    # and there's no section yet
                     pdf_file = next((f for f in report_files if f.endswith(".pdf")), None)
                     if pdf_file and not has_download_section:
                         pdf_url = url_for("view_file", job_id=job_id, filename=pdf_file)
@@ -838,17 +839,24 @@ def create_app():
                                 </a>
                             </div>
                         </section>
-                        '''
+                        '''  # noqa: E501
 
-                        # Insert download section before the activity details section (before the table)
-                        activity_details_marker = '<section class="section">\n            <div class="section-header">\n                <i class="fas fa-list-ul"></i>\n                <h2>Activity Details</h2>'
+                        # Insert download section before the activity details section
+                        # (before the table)
+                        activity_details_marker = (
+                            '<section class="section">\n            '
+                            '<div class="section-header">\n                '
+                            '<i class="fas fa-list-ul"></i>\n                '
+                            "<h2>Activity Details</h2>"
+                        )
                         if activity_details_marker in html_content:
                             html_content = html_content.replace(
                                 activity_details_marker,
                                 f"{download_button}\n\n        {activity_details_marker}",
                             )
                             logger.info(
-                                f"Added PDF download button with link to {pdf_url} before Activity Details section"
+                                f"Added PDF download button with link to {pdf_url}"
+                                f" before Activity Details section"
                             )
 
                     # Write back the modified content
@@ -961,7 +969,7 @@ def create_app():
 
             # Create a ZIP file
             with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zipf:
-                for root, dirs, files in os.walk(report_path):
+                for root, _, files in os.walk(report_path):
                     for file in files:
                         file_path = os.path.join(root, file)
                         arcname = os.path.relpath(file_path, report_path)
@@ -1058,7 +1066,7 @@ def create_app():
     return app
 
 
-def run_activity_tracking(
+def run_activity_tracking(  # noqa: C901
     job_id: str,
     token: str,
     org: Optional[str],
@@ -1088,7 +1096,8 @@ def run_activity_tracking(
         logger.info(f"=== STARTING JOB {job_id} ===")
         logger.info(f"Thread info: name={thread_name}, id={thread_id}")
         logger.info(
-            f"Job parameters: org={org}, users={users}, date range={date_from} to {date_to}, format={output_format}"
+            f"Job parameters: org={org}, users={users}, "
+            f"date range={date_from} to {date_to}, format={output_format}"
         )
 
         # Print current working directory and Python module paths
@@ -1116,7 +1125,8 @@ def run_activity_tracking(
         # Additional diagnostics
         logger.debug(f"Job dictionary: {list(job_sessions.keys())}")
         logger.debug(
-            f"Current job keys: {list(job_sessions[job_id].keys()) if job_id in job_sessions else 'N/A'}"
+            f"Current job keys: "
+            f"{list(job_sessions[job_id].keys()) if job_id in job_sessions else 'N/A'}"
         )
 
         try:
@@ -1128,8 +1138,6 @@ def run_activity_tracking(
             job["activities"] = []
             processed_count = 0
 
-            # For storing user results
-            user_results = {}
         except Exception as e:
             logger.error(f"Error initializing job tracking: {e}")
             # Try to update job status if possible
@@ -1139,14 +1147,14 @@ def run_activity_tracking(
                     job_sessions[job_id]["errors"] = [f"Error initializing job: {str(e)}"]
                     job_sessions[job_id]["end_time"] = datetime.now()
                     save_job(job_id, job_sessions[job_id])
-            except:
+            except Exception as _:
                 pass
             return
 
         # Lock for thread-safe updates to job status
         status_lock = threading.Lock()
 
-        def process_user(username: str) -> List[Dict[str, Any]]:
+        def process_user(username: str) -> List[Dict[str, Any]]:  # noqa: C901
             """Process a single GitHub user.
 
             Args:
@@ -1230,7 +1238,8 @@ def run_activity_tracking(
                                 )
 
                                 logger.debug(
-                                    "Successfully imported GitHubActivityTracker via sys.path manipulation"
+                                    "Successfully imported GitHubActivityTracker"
+                                    " via sys.path manipulation"
                                 )
                             finally:
                                 # Restore original sys.path
@@ -1521,15 +1530,6 @@ def run_activity_tracking(
         logger.info(f"Activities by user: {user_counts}")
         logger.info(f"Number of unique users in activities: {len(user_counts)}")
 
-        # Save job state to persistent storage
-        save_job(job_id, job)
-    except Exception as e:
-        error_msg = f"Error in tracking job: {str(e)}"
-        logger.error(error_msg)
-        job["errors"].append(error_msg)
-        job["status"] = "failed"
-        # Clear current_user in case of failure too
-        job["current_user"] = None
         # Save job state to persistent storage
         save_job(job_id, job)
     except Exception as global_e:

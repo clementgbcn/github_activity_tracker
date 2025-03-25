@@ -22,7 +22,8 @@ def repair_jobs_file(jobs_file_path=None):
     Repair the corrupted jobs file.
 
     Args:
-        jobs_file_path (str, optional): Path to the jobs file. If None, the default path will be used.
+        jobs_file_path (str, optional): Path to the jobs file.
+        If None, the default path will be used.
 
     Returns:
         bool: True if repair was successful or not needed, False otherwise.

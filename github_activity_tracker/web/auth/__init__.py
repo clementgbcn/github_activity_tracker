@@ -17,7 +17,7 @@ def authenticate_user(username, password):
     # Try the user_manager module as fallback
     try:
         return user_manager_authenticate(username, password)
-    except:
+    except Exception as _:
         pass
 
     return None
@@ -33,7 +33,7 @@ def get_user_by_id(user_id):
     # Try the user_manager module as fallback
     try:
         return user_manager_get_user(user_id)
-    except:
+    except Exception as _:
         pass
 
     # Fallback for demo mode

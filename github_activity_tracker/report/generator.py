@@ -81,7 +81,8 @@ class ReportGenerator:
 
             logger.debug(f"Activities by user: {user_counts}")
             logger.info(
-                f"Generating report with {len(activities)} activities from {len(user_counts)} unique users"
+                f"Generating report with {len(activities)}"
+                f" activities from {len(user_counts)} unique users"
             )
 
             # Create DataFrame from activities list
@@ -117,7 +118,7 @@ class ReportGenerator:
         return filename
 
     @staticmethod
-    def _generate_html_report(df):
+    def _generate_html_report(df):  # noqa: C901
         """Generate an HTML report with visualizations."""
         # Create output directory for the report and assets
         report_dir = create_report_directory()
@@ -223,8 +224,10 @@ class ReportGenerator:
             if not title:
                 return ""
 
-            # Look for pattern: letters, hyphen, numbers (e.g., abd-1243, efg-1345, p8-123)
-            # Match both uppercase and lowercase with at least one letter followed by hyphen and digits
+            # Look for pattern: letters, hyphen, numbers
+            # (e.g., abd-1243, efg-1345, p8-123)
+            # Match both uppercase and lowercase with
+            # at least one letter followed by hyphen and digits
             jira_pattern = re.compile(r"([A-Za-z][A-Za-z0-9]*-\d+)")
             match = jira_pattern.search(title)
 
@@ -287,7 +290,8 @@ class ReportGenerator:
 
         # logo_filename was determined earlier when searching for the logo
 
-        # Make sure we're using just the filenames for images (Flask URL handling will be done at runtime)
+        # Make sure we're using just the filenames for images
+        # (Flask URL handling will be done at runtime)
         html_output = template.render(
             start_date=start_date,
             end_date=end_date,
@@ -355,7 +359,7 @@ class ReportGenerator:
                         -webkit-print-color-adjust: exact;
                         color-adjust: exact;
                     }
-                """,
+                """,  # noqa: E501
                     font_config=font_config,
                 )
 

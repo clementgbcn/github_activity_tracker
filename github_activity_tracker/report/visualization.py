@@ -205,7 +205,8 @@ class ActivityVisualizer:
         sorted_user_event_counts = user_event_counts.loc[user_totals.index]
 
         logger.debug(
-            f"Comparing {len(user_totals)} users with {len(user_event_counts.columns)} activity types"
+            f"Comparing {len(user_totals)} users with"
+            f" {len(user_event_counts.columns)} activity types"
         )
 
         # Define a custom color palette
