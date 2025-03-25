@@ -14,26 +14,17 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-# Add the project root to the Python path to ensure modules can be found
-project_root = os.path.dirname(os.path.abspath(__file__))
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
-
-# Setup DataDog tracing if DATADOG_ENABLED environment variable is set
-if os.getenv("DATADOG_ENABLED", "false").lower() == "true":
-    try:
-        import ddtrace
-
-        logging.info("DataDog tracing enabled")
-    except ImportError:
-        logging.warning("DataDog tracing requested but ddtrace package not installed")
-
 from github_activity_tracker.utils import set_debug_mode
 from github_activity_tracker.utils.logging_config import logger
 from github_activity_tracker.utils.werkzeug_logging import init_werkzeug_logging
 
 # Import web app after utils to ensure all dependencies are loaded
 from github_activity_tracker.web import create_app
+
+# Add the project root to the Python path to ensure modules can be found
+project_root = os.path.dirname(os.path.abspath(__file__))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
 
 # Load environment variables from .env file
 load_dotenv()
@@ -69,10 +60,11 @@ if not os.getenv("SECRET_KEY"):
             if not has_secret_key:
                 with open(env_file, "a") as f:
                     f.write(
-                        f"\n# Auto-generated secret key for Flask sessions\nSECRET_KEY={secret_key}\n"
+                        f"\n# Auto-generated secret key for Flask sessions"
+                        f"\nSECRET_KEY={secret_key}\n"
                     )
-        except:
-            logging.warning("Could not update .env file with secret key")
+        except Exception as e:
+            logging.warning(f"Could not update .env file with secret key: {e}")
 
 # Create the Flask application
 try:

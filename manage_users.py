@@ -170,9 +170,6 @@ def main():
 
     subparsers = parser.add_subparsers(dest="command", help="Command to run")
 
-    # List users command
-    list_parser = subparsers.add_parser("list", help="List all users")
-
     # Add user command
     add_parser = subparsers.add_parser("add", help="Add a new user")
     add_parser.add_argument("--username", help="Username for the new user")

@@ -14,6 +14,10 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
+# Import app creator after configuring environment
+from github_activity_tracker.utils import set_debug_mode
+from github_activity_tracker.web import create_app
+
 # Add the project root to the Python path to ensure modules can be found
 project_root = os.path.dirname(os.path.abspath(__file__))
 if project_root not in sys.path:
@@ -36,10 +40,6 @@ logger.info("Starting Debug Mode launcher")
 # Load environment variables
 load_dotenv()
 logger.info("Loaded environment variables from .env")
-
-# Import app creator after configuring environment
-from github_activity_tracker.utils import set_debug_mode
-from github_activity_tracker.web import create_app
 
 # Enable debug mode
 set_debug_mode(True)
@@ -132,7 +132,7 @@ def debug_console():
         </div>
     </body>
     </html>
-    """
+    """  # noqa: E501
 
 
 if __name__ == "__main__":
